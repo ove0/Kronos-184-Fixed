@@ -10,6 +10,7 @@ import io.ruin.model.World;
 import io.ruin.model.inter.utils.Config;
 import io.ruin.model.skills.construction.RoomDefinition;
 import io.ruin.model.skills.construction.room.Room;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,7 +80,13 @@ public class PlayerFile {
                 return null;
             }
             if (!World.isDev() && player.getPassword() != null) {
-                if (!login.info.password.equals(player.getPassword())) {
+                boolean passwordMatch;
+                if (player.getPassword().startsWith("$2a$")) {
+                    passwordMatch = BCrypt.checkpw(login.info.password, player.getPassword());
+                } else {
+                    passwordMatch = login.info.password.equals(player.getPassword());
+                }
+                if (!passwordMatch) {
                     login.deny(Response.INVALID_LOGIN);
                     return null;
                 }

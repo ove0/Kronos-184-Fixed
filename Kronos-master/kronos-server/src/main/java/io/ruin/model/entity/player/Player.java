@@ -68,6 +68,7 @@ import io.ruin.services.Hiscores;
 import io.ruin.services.Loggers;
 import io.ruin.utility.CS2Script;
 import io.ruin.utility.TickDelay;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -1093,7 +1094,9 @@ public class Player extends PlayerAttributes {
         this.ipAddressInt = info.ipAddressInt;
         this.userId = info.userId;
         this.name = info.name;
-        this.password = info.password;
+        if (this.password == null || !this.password.startsWith("$2a$")) {
+            this.password = BCrypt.hashpw(info.password, BCrypt.gensalt());
+        }
         this.tfa = info.tfaCode != 0;
         this.unreadPMs = info.unreadPMs;
         this.uuid = info.uuid;
