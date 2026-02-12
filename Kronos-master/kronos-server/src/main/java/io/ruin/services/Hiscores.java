@@ -7,7 +7,6 @@ import io.ruin.model.World;
 import io.ruin.model.entity.player.Player;
 import io.ruin.model.inter.utils.Config;
 import io.ruin.model.stat.StatType;
-import io.ruin.utility.OfflineMode;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -29,7 +28,7 @@ public class Hiscores {
      */
 
     private static void saveHiscores(Player player) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Server.siteDb.execute(new DatabaseStatement() {
             @Override

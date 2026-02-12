@@ -1,4 +1,4 @@
-package io.ruin.central.model.social;
+package io.ruin.social;
 
 public enum SocialRank {
     FRIEND,

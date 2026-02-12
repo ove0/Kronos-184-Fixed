@@ -6,8 +6,6 @@ import io.ruin.api.protocol.login.LoginInfo;
 import io.ruin.api.protocol.login.LoginRequest;
 import io.ruin.data.impl.login_set;
 import io.ruin.model.World;
-import io.ruin.network.central.CentralClient;
-import io.ruin.utility.OfflineMode;
 import io.ruin.utility.PlayerRestore;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,9 +20,7 @@ public class PlayerLogin extends LoginRequest {
     }
 
     private void send() {
-        if(OfflineMode.loadPlayer(this))
-            return;
-        CentralClient.sendLogin(info.ipAddress, info.name, info.password, info.email, info.macAddress, info.uuid, info.tfaCode, info.tfaTrust, info.tfaTrustValue & 0xff);
+        PlayerFile.loadPlayer(this);
     }
 
     @Override
@@ -47,7 +43,7 @@ public class PlayerLogin extends LoginRequest {
                     index = i;
                 continue;
             }
-            if(player.getUserId() == info.userId) {
+            if(player.getName().equalsIgnoreCase(info.name)) {
                 super.deny(Response.ALREADY_LOGGED_IN);
                 Server.logWarning(player.getName() + " is already online!");
                 return;
@@ -72,9 +68,6 @@ public class PlayerLogin extends LoginRequest {
             player.setIndex(index);
             player.init(info);
 
-            //reconstruct players if their before the char fuck up
-            //PlayerRestore.reconstructPlayer(player);
-
             World.players.set(index, player);
             LOADING[index] = false;
 
@@ -86,7 +79,6 @@ public class PlayerLogin extends LoginRequest {
     @Override
     public void deny(Response response) {
         super.deny(response);
-        CentralClient.sendLogout(info.userId);
     }
 
 }

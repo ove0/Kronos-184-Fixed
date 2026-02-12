@@ -7,7 +7,6 @@ import io.ruin.process.task.TaskWorker;
 import io.ruin.services.discord.impl.AdminCommands;
 import io.ruin.services.discord.impl.PrivateMessageReceived;
 import io.ruin.services.discord.impl.UserCommands;
-import io.ruin.utility.OfflineMode;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -22,7 +21,7 @@ public class DiscordConnection {
 	private static DiscordConnection instance = new DiscordConnection();
 	private static long myId;
 
-	public static final long CHANNEL_PUNISHMENTS = 642470243998105652L;
+	public static final long CHANNEL_PUNISHMENTS = 0;
 
 	public static void setup(String token) throws LoginException {
 		jda = JDABuilder.createDefault("token")
@@ -41,7 +40,7 @@ public class DiscordConnection {
 
 
 	public static void post(long channel, String title, String text) {
-		if (!World.isLive() || OfflineMode.enabled) {
+		if (!World.isLive()) {
 			return;
 		}
 		MessageEmbed built = new EmbedBuilder().setTitle(title).setDescription(text).build();
@@ -49,7 +48,7 @@ public class DiscordConnection {
 	}
 
 	public static void post(long channel, MessageEmbed built) {
-		if (!World.isLive() || OfflineMode.enabled) {
+		if (!World.isLive()) {
 			return;
 		}
 		try {

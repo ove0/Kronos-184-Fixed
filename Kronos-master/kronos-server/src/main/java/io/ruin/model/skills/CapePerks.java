@@ -9,7 +9,7 @@ import io.ruin.model.item.Item;
 import io.ruin.model.item.actions.ItemAction;
 import io.ruin.model.item.containers.Equipment;
 import io.ruin.model.skills.magic.spells.modern.TeleportToHouse;
-import io.ruin.utility.OfflineMode;
+import io.ruin.model.World;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -96,7 +96,7 @@ public class CapePerks {
 	}
 
 	public static boolean wearsAttackCape(Player player) {
-		if (!OfflineMode.enabled) {
+		if (!World.isDev()) {
 			return false;
 		}
 
@@ -105,7 +105,7 @@ public class CapePerks {
 	}
 
 	public static boolean wearsCookingCape(Player player) {
-		if (!OfflineMode.enabled) {
+		if (!World.isDev()) {
 			return false;
 		}
 
@@ -114,7 +114,7 @@ public class CapePerks {
 	}
 
 	public static boolean wearsFarmingCape(Player player) {
-		if (!OfflineMode.enabled) {
+		if (!World.isDev()) {
 			return false;
 		}
 
@@ -123,7 +123,7 @@ public class CapePerks {
 	}
 
 	public static boolean wearsHPCape(Player player) {
-		if (!OfflineMode.enabled) {
+		if (!World.isDev()) {
 			return false;
 		}
 
@@ -132,7 +132,7 @@ public class CapePerks {
 	}
 
 	public static boolean wearsThievingCape(Player player) {
-		if (!OfflineMode.enabled) {
+		if (!World.isDev()) {
 			return false;
 		}
 
@@ -141,7 +141,7 @@ public class CapePerks {
 	}
 
 	public static boolean wearsWoodcuttingCape(Player player) {
-		if (!OfflineMode.enabled) {
+		if (!World.isDev()) {
 			return false;
 		}
 
@@ -150,7 +150,7 @@ public class CapePerks {
 	}
 
 	public static boolean wearsMiningCape(Player player) {
-		if (!OfflineMode.enabled) {
+		if (!World.isDev()) {
 			return false;
 		}
 
@@ -159,7 +159,7 @@ public class CapePerks {
 	}
 
 	static {
-		if (OfflineMode.enabled) {
+		if (World.isDev()) {
 			// Agility
 			ItemAction.registerInventory(9771, "Stamina Boost", CapePerks::staminaBoost);
 			ItemAction.registerInventory(9772, "Stamina Boost", CapePerks::staminaBoost);

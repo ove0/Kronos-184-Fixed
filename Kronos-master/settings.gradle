@@ -5,7 +5,6 @@ include ':kronos-server-live'
 include ':kronos-client'
 include ':kronos-api'
 include ':kronos-update-server'
-include ':kronos-central-server'
 include ':kronos-launcher'
 include ':kronos-webhooks'
 

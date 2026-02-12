@@ -2,9 +2,11 @@ package io.ruin.network.incoming.handlers;
 
 import io.ruin.api.buffer.InBuffer;
 import io.ruin.api.filestore.utility.Huffman;
-import io.ruin.api.protocol.Protocol;
 import io.ruin.model.entity.player.Player;
-import io.ruin.network.central.CentralClient;
+import io.ruin.social.SocialList;
+import io.ruin.social.SocialMember;
+import io.ruin.social.SocialRank;
+import io.ruin.social.clan.ClanChat;
 import io.ruin.network.incoming.Incoming;
 import io.ruin.services.Loggers;
 import io.ruin.services.Punishment;
@@ -22,7 +24,20 @@ public class FriendsHandler implements Incoming {
              */
             int rank = in.readByte();
             name = in.readString();
-            CentralClient.sendClanRank(player.getUserId(), name, rank);
+            SocialRank socialRank = SocialRank.get(rank, null);
+            if (socialRank == null) {
+                return;
+            }
+            SocialMember friend = player.socialList.getFriend(name);
+            if (friend == null || friend.rank == socialRank) {
+                return;
+            }
+            friend.rank = socialRank;
+            friend.resend();
+            ClanChat cc = player.getClanChat();
+            if (cc.inClan(friend.playerName)) {
+                cc.update(false);
+            }
             return;
         }
         name = in.readString();
@@ -30,28 +45,28 @@ public class FriendsHandler implements Incoming {
             /**
              * Add friend
              */
-            CentralClient.sendSocialRequest(player.getUserId(), name, 1);
+            SocialList.handle(player, name, 1);
             return;
         }
         if(opcode == 48) {
             /**
              * Delete friend
              */
-            CentralClient.sendSocialRequest(player.getUserId(), name, 2);
+            SocialList.handle(player, name, 2);
             return;
         }
         if(opcode == 84) {
             /**
              * Add ignore
              */
-            CentralClient.sendSocialRequest(player.getUserId(), name, 3);
+            SocialList.handle(player, name, 3);
             return;
         }
         if(opcode == 56) {
             /**
              * Delete ignore
              */
-            CentralClient.sendSocialRequest(player.getUserId(), name, 4);
+            SocialList.handle(player, name, 4);
             return;
         }
         if(opcode == 93) {
@@ -61,13 +76,13 @@ public class FriendsHandler implements Incoming {
             String message = Huffman.decrypt(in, 100);
             if(Punishment.isMuted(player)) {
                 if(player.shadowMute)
-                    player.getPacketSender().write(Protocol.outgoingPm(name, message));
+                    player.sendPM(name, message);
                 else
                     player.sendMessage("You're muted and can't talk.");
                 return;
             }
-            CentralClient.sendPrivateMessage(player.getUserId(), player.getClientGroupId(), name, message);
-            Loggers.logPrivateChat(player.getUserId(), player.getName(), player.getIp(), name, message);
+            SocialList.sendPrivateMessage(player, player.getClientGroupId(), name, message);
+            Loggers.logPrivateChat(player.getName(), player.getIp(), name, message);
             return;
         }
     }

@@ -4,7 +4,7 @@ import io.ruin.api.buffer.InBuffer;
 import io.ruin.api.filestore.utility.Huffman;
 import io.ruin.api.utils.IPMute;
 import io.ruin.model.entity.player.Player;
-import io.ruin.network.central.CentralClient;
+import io.ruin.social.clan.ClanChat;
 import io.ruin.network.incoming.Incoming;
 import io.ruin.services.Loggers;
 import io.ruin.services.Punishment;
@@ -46,7 +46,10 @@ public class ChatHandler implements Incoming {
         }
         if(type == 2) {
             message = message.substring(1, message.length());
-            CentralClient.sendClanMessage(player.getUserId(), player.getClientGroupId(), message);
+            ClanChat active = player.getActiveClanChat();
+            if (active != null) {
+                active.message(player, player.getClientGroupId(), message);
+            }
             Loggers.logClanChat(player.getUserId(), player.getName(), player.getIp(), message);
             return;
         }

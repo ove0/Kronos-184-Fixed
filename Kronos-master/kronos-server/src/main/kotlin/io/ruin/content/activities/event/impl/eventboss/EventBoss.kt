@@ -11,7 +11,7 @@ import io.ruin.model.entity.shared.listeners.DeathListener
 import io.ruin.model.map.ground.GroundItem
 import io.ruin.services.discord.impl.EventBossEmbedMessage
 import io.ruin.utility.Broadcast
-import io.ruin.utility.OfflineMode
+import io.ruin.model.World
 
 /**
  *
@@ -30,7 +30,7 @@ class EventBoss(val boss: EventBossType) : TimedEventImpl {
         npc.setIgnoreMulti(true)
         npc.combat.setAllowRespawn(false)
         globalEvent { Broadcast.WORLD_NOTIFICATION.sendNews(Icon.BLUE_INFO_BADGE, boss.message[random]) }
-        if (!OfflineMode.enabled) {
+        if (!World.isDev()) {
             EventBossEmbedMessage.sendDiscordMessage(boss, boss.message[random])
         }
         npc.deathEndListener = DeathListener { entity, _, killHit ->

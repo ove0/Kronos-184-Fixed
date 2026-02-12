@@ -6,7 +6,7 @@ import io.ruin.api.utils.NumberUtils;
 import io.ruin.cache.Icon;
 import io.ruin.model.entity.player.Player;
 import io.ruin.utility.Broadcast;
-import io.ruin.utility.OfflineMode;
+import io.ruin.model.World;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,7 +25,7 @@ public class StaffBounty {
     }
 
     public static void checkActive() {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Server.gameDb.execute(con -> {
             Statement statement = con.createStatement();

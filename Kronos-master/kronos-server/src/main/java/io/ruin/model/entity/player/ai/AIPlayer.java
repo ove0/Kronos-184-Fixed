@@ -29,7 +29,7 @@ public class AIPlayer extends Player {
         int index = World.players.add(this, 1);
         this.setIndex(index);
         LoginInfo info = new LoginInfo(ArtificialChannel.getSingleton(), username, "password", "", "", null, 0, false, 0, World.id, new int[4]);
-        info.update(-1, info.name, "", ListUtils.toList(PlayerGroup.REGISTERED.id), 0);
+        info.update(info.name, "", ListUtils.toList(PlayerGroup.REGISTERED.id));
         init(info);
         this.setName(username);
         this.lastRegion = position.getRegion();

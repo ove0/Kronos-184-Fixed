@@ -18,7 +18,7 @@ public class EventBossEmbedMessage {
         eb.setDescription(location);
         eb.setImage(boss.getEmbedUrl());
         eb.setColor(new Color(0xB00D03));
-        DiscordConnection.post(724071952574185492L, eb.build());
+        DiscordConnection.post(0, eb.build());
         System.out.println("Embed sent!");
     }
 }

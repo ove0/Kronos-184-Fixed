@@ -90,7 +90,9 @@ import io.ruin.model.skills.slayer.Slayer;
 import io.ruin.model.skills.slayer.SlayerTask;
 import io.ruin.model.stat.Stat;
 import io.ruin.model.stat.StatType;
-import io.ruin.network.central.CentralClient;
+import io.ruin.api.utils.IPBans;
+import io.ruin.api.utils.MACBan;
+import io.ruin.api.utils.UUIDBan;
 import io.ruin.network.incoming.Incoming;
 import io.ruin.services.LatestUpdate;
 import io.ruin.services.Loggers;
@@ -98,7 +100,6 @@ import io.ruin.services.Punishment;
 import io.ruin.utility.AttributePair;
 import io.ruin.utility.CS2Script;
 import io.ruin.utility.IdHolder;
-import io.ruin.utility.OfflineMode;
 import org.apache.commons.lang3.RandomUtils;
 
 import java.io.*;
@@ -966,7 +967,7 @@ public class CommandHandler implements Incoming {
 
     private static boolean handleAdmin(Player player, String query, String command, String[] args) {
         if(!player.isAdmin()) {
-            if(!OfflineMode.enabled && (!World.isDev() || !enabledDevCmds.contains(command)))
+            if(!World.isDev() || !enabledDevCmds.contains(command))
                 return false;
         }
         boolean isCommunityManager = player.getPrimaryGroup().equals(PlayerGroup.COMMUNITY_MANAGER);
@@ -1012,7 +1013,10 @@ public class CommandHandler implements Incoming {
             }
 
             case "reloadbans": {
-                CentralClient.reloadBans();
+                IPBans.refreshBans();
+                UUIDBan.refreshBans();
+                MACBan.refreshBans();
+                player.sendMessage("Bans reloaded.");
                 return true;
             }
 
@@ -1227,21 +1231,18 @@ public class CommandHandler implements Incoming {
             case "givehcim":
                 forPlayer(player, query, "::givehcim playerName", p2 -> {
                     Config.IRONMAN_MODE.set(p2, 3);
-                    changeForumsGroup(p2, HARDCORE_IRONMAN.groupId);
                     player.sendMessage("Gave hardcore ironman to " + p2.getName() + ".");
                 });
                 return true;
             case "giveultimate":
                 forPlayer(player, query, "::giveultimate playerName", p2 -> {
                     Config.IRONMAN_MODE.set(p2, 2);
-                    changeForumsGroup(p2, ULTIMATE_IRONMAN.groupId);
                     player.sendMessage("Gave ultimate ironman to " + p2.getName() + ".");
                 });
                 return true;
             case "giveironman":
                 forPlayer(player, query, "::giveironman playerName", p2 -> {
                     Config.IRONMAN_MODE.set(p2, 1);
-                    changeForumsGroup(p2, IRONMAN.groupId);
                     player.sendMessage("Gave ironman to " + p2.getName() + ".");
                 });
                 return true;

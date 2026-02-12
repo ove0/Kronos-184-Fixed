@@ -12,7 +12,6 @@ import io.ruin.model.item.ItemContainerG;
 import io.ruin.model.item.containers.bank.Bank;
 import io.ruin.model.item.containers.bank.BankItem;
 import io.ruin.model.map.Position;
-import io.ruin.utility.OfflineMode;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,7 +25,7 @@ import static io.ruin.cache.ItemID.COINS_995;
 
 public class Loggers extends DatabaseUtils {
     public static void logRaidsUnique(String player, String itemName, int raidsCount) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Server.gameDb.execute( con -> {
             try (PreparedStatement statement = con.prepareStatement(insertQuery("logs_raids_uniques", "player", "item", "raids_count"))) {
@@ -38,7 +37,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void logRaidsCompletion(String[] players, String duration, int points) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         String playersList = String.join(",",players);
         Server.gameDb.execute( con -> {
@@ -51,7 +50,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void logPublicChat(int userId, String userName, String userIp, String message, int type, int effects) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Server.gameDb.execute(con -> {
             try (PreparedStatement statement = con.prepareStatement(insertQuery("logs_public_chat", "user_id", "user_name", "user_ip", "message", "type", "effects", "world_id", "world_stage", "world_type"))) {
@@ -70,7 +69,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void logClanChat(int userId, String userName, String userIp, String message) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Server.gameDb.execute(con -> {
             try (PreparedStatement statement = con.prepareStatement(insertQuery("logs_clan_chat", "user_id", "user_name", "user_ip", "message", "world_id", "world_stage", "world_type"))) {
@@ -87,7 +86,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void logYell(int userId, String userName, String userIp, String message) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Server.gameDb.execute(con -> {
             try (PreparedStatement statement = con.prepareStatement(insertQuery("logs_yell", "user_id", "user_name", "user_ip", "message"))) {
@@ -100,12 +99,12 @@ public class Loggers extends DatabaseUtils {
         });
     }
 
-    public static void logPrivateChat(int userId, String userName, String userIp, String friendName, String message) {
-        if (OfflineMode.enabled)
+    public static void logPrivateChat(String userName, String userIp, String friendName, String message) {
+        if (World.isDev())
             return;
         Server.gameDb.execute(con -> {
             try (PreparedStatement statement = con.prepareStatement(insertQuery("logs_private_chat", "user_id", "user_name", "user_ip", "friend_name", "message", "world_id", "world_stage", "world_type"))) {
-                statement.setInt(1, userId);
+                statement.setInt(1, 0);
                 statement.setString(2, userName);
                 statement.setString(3, userIp);
                 statement.setString(4, friendName);
@@ -119,7 +118,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void logCommand(int userId, String userName, String userIp, String commandQuery) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Server.gameDb.execute(con -> {
             try (PreparedStatement statement = con.prepareStatement(insertQuery("logs_commands", "user_id", "user_name", "user_ip", "cmd_query", "world_id", "world_stage", "world_type"))) {
@@ -136,7 +135,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void logLoyaltyChest(int userId, String userName, String userIp, int spree, Item... rewards) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Server.gameDb.execute(con -> {
             try (PreparedStatement statement = con.prepareStatement(insertQuery("logs_loyalty_chest", "user_id", "user_name", "user_ip", "spree", "rewards", "world_id", "world_stage", "world_type"))) {
@@ -154,7 +153,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void logTrade(int userId1, String userName1, String userIp1, int userId2, String userName2, String userIp2, Item[] userItems1_0, Item[] userItems2_0) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Item[] userItems1 = userItems1_0.clone();
         Item[] userItems2 = userItems2_0.clone();
@@ -178,7 +177,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void logTrade(Player trader1, Player trader2, Item[] userItems1_0, Item[] userItems2_0) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         // Calculate values
         long value1 = 0;
@@ -262,7 +261,7 @@ public class Loggers extends DatabaseUtils {
 
 
     public static void logDuelStake(int userId1, String userName1, String userIp1, int userId2, String userName2, String userIp2, Item[] userItems1_0, Item[] userItems2_0, int winnerId) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Item[] userItems = userItems1_0.clone();
         Item[] targetItems = userItems2_0.clone();
@@ -287,7 +286,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void logDangerousDeath(int userId, String userName, String userIp, int killerId, String killerName, String killerIp, List<Item> itemsKept, List<Item> itemsLost) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Server.gameDb.execute(con -> {
             try (PreparedStatement statement = con.prepareStatement(insertQuery("logs_dangerous_deaths", "user_id", "user_name", "user_ip", "killer_id", "killer_name", "killer_ip", "items_kept", "items_lost", "world_id", "world_stage", "world_type"))) {
@@ -308,7 +307,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void logDrop(int userId, String userName, String userIp, int itemId, int itemAmount, int x, int y, int z) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Server.gameDb.execute(con -> {
             try (PreparedStatement statement = con.prepareStatement(insertQuery("logs_item_drops", "user_id", "user_name", "user_ip", "item_id", "item_name", "item_amount", "x", "y", "z", "world_id", "world_stage", "world_type"))) {
@@ -330,7 +329,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void logPickup(int userId, String userName, String userIp, int itemId, int itemAmount, int x, int y, int z) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Server.gameDb.execute(con -> {
             try (PreparedStatement statement = con.prepareStatement(insertQuery("logs_item_pickups", "user_id", "user_name", "user_ip", "item_id", "item_name", "item_amount", "x", "y", "z", "world_id", "world_stage", "world_type"))) {
@@ -352,7 +351,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void logDropTrade(int takerId, int dropperId, String takerIp, String dropperIp, String takerName, String dropperName, int itemId, int amount, int x, int y, int z, long timeDropped) {
-        if (!OfflineMode.enabled)
+        if (!World.isDev())
             return;
         if (takerId == dropperId)
             return;
@@ -379,7 +378,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void logShopBuy(int userId, String userName, String userIp, int itemId, int itemPrice, int buyAmount) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Server.gameDb.execute(con -> {
             try (PreparedStatement statement = con.prepareStatement(insertQuery("logs_shop_buys", "user_id", "user_name", "user_ip", "item_id", "item_name", "item_price", "buy_amount", "world_id", "world_stage", "world_type"))) {
@@ -399,7 +398,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void logSigmund(int userId, int itemId, int amount) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
 
         Server.gameDb.execute(con -> {
@@ -413,7 +412,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void logTournamentResults(int userId, String userName, String userIp, int place) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Server.gameDb.execute(con -> {
             try (PreparedStatement statement = con.prepareStatement(insertQuery("logs_tournament_results", "user_id", "user_name", "user_ip", "place", "world_id", "world_stage", "world_type"))) {
@@ -430,7 +429,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void addOnlinePlayer(int userId, String userName, int worldId, String userIp, boolean isHelper, boolean isModerator, boolean isAdministrator) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Server.gameDb.execute(con -> {
             try (PreparedStatement statement = con.prepareStatement(insertQuery("online_characters", "user_id", "user_name", "world_id", "ip", "is_helper", "is_moderator", "is_administrator"))) {
@@ -447,7 +446,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void removeOnlinePlayer(int userId, int worldId) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Server.gameDb.execute(con -> {
             PreparedStatement statement = null;
@@ -463,7 +462,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void clearOnlinePlayers(int worldId) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Server.gameDb.execute(con -> {
             PreparedStatement statement = null;
@@ -478,7 +477,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void updateItems(Player player) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         /* first delete all the items */
         Server.gameDb.execute(con -> {
@@ -530,7 +529,7 @@ public class Loggers extends DatabaseUtils {
      */
 
     public static void logPlayer(Player player) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Server.gameDb.execute(con -> {
             try (PreparedStatement statement = con.prepareStatement(insertQuery("logs_sessions", "user_id", "user_name", "user_ip", "world_id", "world_stage", "world_type"))) {
@@ -615,7 +614,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void logPvMInstance(int ownerId, String typeName, int cost, long timeCreated, long timeDestroyed) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Server.gameDb.execute(con -> {
             try (PreparedStatement statement = con.prepareStatement(insertQuery("logs_instances", "user_id", "instance_type", "instance_cost", "time_created", "time_destroyed", "world_id", "world_stage", "world_type"))) {
@@ -633,7 +632,7 @@ public class Loggers extends DatabaseUtils {
     }
 
     public static void logStaffBountyKill(Player player, Player pKilled) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return;
         Server.gameDb.execute(con -> {
             try (PreparedStatement statement = con.prepareStatement(insertQuery("logs_staff_bounty_kills", "killer_name", "killed_name", "killed_group_id"))) {

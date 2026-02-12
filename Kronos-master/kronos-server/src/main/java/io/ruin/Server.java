@@ -22,7 +22,6 @@ import io.ruin.model.map.object.actions.impl.dungeons.StrongholdSecurity;
 import io.ruin.model.map.object.actions.impl.edgeville.Giveaway;
 import io.ruin.model.shop.ShopManager;
 import io.ruin.network.LoginDecoder;
-import io.ruin.network.central.CentralClient;
 import io.ruin.network.incoming.Incoming;
 import io.ruin.process.CoreWorker;
 import io.ruin.process.LoginWorker;
@@ -31,7 +30,6 @@ import io.ruin.services.LatestUpdate;
 import io.ruin.services.Loggers;
 import io.ruin.services.discord.DiscordConnection;
 import io.ruin.utility.CharacterBackups;
-import io.ruin.utility.OfflineMode;
 import kilim.WeavingClassLoader;
 import kilim.agent.KilimAgent;
 import lombok.extern.slf4j.Slf4j;
@@ -113,14 +111,6 @@ public class Server extends ServerWrapper {
         World.parse(properties);
 
         /*
-         * Offline mode
-         */
-        if (OfflineMode.enabled = Boolean.valueOf(properties.getProperty("offline_mode"))) {
-            OfflineMode.setPath();
-            println("WARNING: Offline mode enabled!");
-        }
-
-        /*
          * Loading (Data from cache & databases)
          */
         println("Loading server data...");
@@ -154,7 +144,7 @@ public class Server extends ServerWrapper {
         /*
          * Database connections
          */
-        if (!OfflineMode.enabled) {
+        if (!World.isDev()) {
             println("Connecting to SQL databases...");
 
             siteDb = new Database(properties.getProperty("database_host"), "kronos", properties.getProperty("database_user"), properties.getProperty("database_password"));
@@ -172,8 +162,8 @@ public class Server extends ServerWrapper {
             Loggers.clearOnlinePlayers(World.id);
             LatestUpdate.fetch();
             Giveaway.updateTotalAmount();
-            if(!OfflineMode.enabled && !World.isDev()) {
-                DiscordConnection.setup("NjY2ODYwNTYwNjcxMDQ3Njg5.XiTqtw.aUSPC_CW6Oszpz1Ru1e08AQjsMQ");
+            if(!World.isDev()) {
+                DiscordConnection.setup("");
             }
         }
 
@@ -238,13 +228,7 @@ public class Server extends ServerWrapper {
         /*
          * Network
          */
-        NettyServer nettyServer = NettyServer.start(World.type.getWorldName() + " World (" + World.id + ") Server", World.port, LoginDecoder.class, 5, Boolean.parseBoolean(properties.getProperty("offline_mode")));
-
-        /*
-         * Central server
-         */
-        if (!OfflineMode.enabled)
-            CentralClient.start();
+        NettyServer nettyServer = NettyServer.start(World.type.getWorldName() + " World (" + World.id + ") Server", World.port, LoginDecoder.class, 5, World.isDev());
 
         //log.info("Data path = {}", Server.dataFolder.getAbsolutePath());
         ServerWrapper.println("Started server in " + (System.currentTimeMillis() - startTime) + "ms.");

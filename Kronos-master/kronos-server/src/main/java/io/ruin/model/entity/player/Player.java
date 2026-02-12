@@ -56,15 +56,18 @@ import io.ruin.model.skills.hunter.Hunter;
 import io.ruin.model.stat.StatList;
 import io.ruin.model.stat.StatType;
 import io.ruin.network.PacketSender;
-import io.ruin.network.central.CentralClient;
+import io.ruin.api.buffer.OutBuffer;
+import io.ruin.api.filestore.utility.Huffman;
+import io.ruin.api.protocol.Protocol;
+import io.ruin.social.SocialList;
+import io.ruin.social.SocialMember;
+import io.ruin.social.clan.ClanChat;
+import io.ruin.utility.PlayerLookup;
 import io.ruin.network.incoming.IncomingDecoder;
 import io.ruin.services.Hiscores;
 import io.ruin.services.Loggers;
-import io.ruin.services.XenGroup;
 import io.ruin.utility.CS2Script;
 import io.ruin.utility.TickDelay;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -75,6 +78,20 @@ import static io.ruin.cache.ItemID.*;
 public class Player extends PlayerAttributes {
 
     public Shop viewingShop;
+
+    /**
+     * Social
+     */
+    public SocialList socialList;
+
+    public ClanChat getClanChat() {
+        return this.socialList.cc;
+    }
+
+    public ClanChat getActiveClanChat() {
+        return this.socialList.cc.active;
+    }
+
     /**
      * Session
      */
@@ -117,7 +134,7 @@ public class Player extends PlayerAttributes {
 
     private String name;
 
-    private String password;
+    @Expose private String password;
 
     public int getUserId() {
         return userId;
@@ -139,6 +156,8 @@ public class Player extends PlayerAttributes {
     /**
      * Groups & Rank (Used to display client icons)
      */
+    @Expose private List<Integer> savedGroupIds;
+
     private boolean[] groups;
 
     private PlayerGroup primaryGroup;
@@ -150,6 +169,7 @@ public class Player extends PlayerAttributes {
     }
 
     private void setGroups(List<Integer> groupIds) {
+        savedGroupIds = new ArrayList<>(groupIds);
         groups = new boolean[PlayerGroup.GROUPS_BY_ID.length];
         for(Integer id : groupIds) {
             PlayerGroup group = PlayerGroup.GROUPS_BY_ID[id];
@@ -177,11 +197,14 @@ public class Player extends PlayerAttributes {
 
     public void join(PlayerGroup g) {
         groups[g.id] = true;
+        if (!savedGroupIds.contains(g.id))
+            savedGroupIds.add(g.id);
         updateClientGroup();
     }
 
     public void leave(PlayerGroup g) {
         groups[g.id] = false;
+        savedGroupIds.remove(Integer.valueOf(g.id));
         updateClientGroup();
     }
 
@@ -236,6 +259,10 @@ public class Player extends PlayerAttributes {
         return groups;
     }
 
+    public List<Integer> getSavedGroupIds() {
+        return savedGroupIds;
+    }
+
     public PlayerGroup getClientGroup() {
         return hidePlayerIcon ? PlayerGroup.REGISTERED : clientGroup;
     }
@@ -274,6 +301,72 @@ public class Player extends PlayerAttributes {
 
     public void sendMessage(String message) {
         packetSender.sendMessage(message, null, 0);
+    }
+
+    public void sendMessage(String message, int type) {
+        packetSender.sendMessage(message, null, type);
+    }
+
+    public void sendSocial(boolean friendType, SocialMember... list) {
+        if (friendType) {
+            this.sendFriends(list);
+        } else {
+            this.sendIgnores(list);
+        }
+    }
+
+    private void sendFriends(SocialMember... friends) {
+        OutBuffer out = new OutBuffer(friends == null ? 3 : 255).sendVarShortPacket(61);
+        if (friends != null) {
+            for (SocialMember friend : friends) {
+                if (friend == null) continue;
+                out.addByte(friend.sendNewName() ? 1 : 0);
+                out.addString(friend.playerName);
+                out.addString(friend.previousPlayerName);
+                out.addShort(friend.worldId);
+                out.addByte(friend.rank == null ? -1 : friend.rank.id);
+                out.addByte(0);
+                if (friend.worldId > 0) {
+                    out.skip(6);
+                }
+                out.skip(1);
+            }
+        }
+        packetSender.write(out);
+    }
+
+    private void sendIgnores(SocialMember... ignores) {
+        OutBuffer out = new OutBuffer(255).sendVarShortPacket(59);
+        if (ignores != null) {
+            for (SocialMember ignore : ignores) {
+                if (ignore == null) continue;
+                out.addByte(ignore.sendNewName() ? 1 : 0);
+                out.addString(ignore.playerName);
+                out.addString(ignore.previousPlayerName);
+                out.skip(1);
+            }
+        }
+        packetSender.write(out);
+    }
+
+    public void sendPrivacy(int privacy) {
+        OutBuffer out = new OutBuffer(2).sendFixedPacket(17).addByte(privacy);
+        packetSender.write(out);
+    }
+
+    public void sendPM(String toUsername, String message) {
+        packetSender.write(Protocol.outgoingPm(toUsername, message));
+    }
+
+    public void sendReceivePM(String fromName, int fromRank, String message) {
+        OutBuffer out = new OutBuffer(255).sendVarShortPacket(45)
+                .addString(fromName);
+        for (int i = 0; i < 5; ++i) {
+            out.addByte(io.ruin.api.utils.Random.get(255));
+        }
+        out.addByte(fromRank);
+        Huffman.encrypt(out, message);
+        packetSender.write(out);
     }
 
     public void sendURL(String message) {
@@ -1005,7 +1098,14 @@ public class Player extends PlayerAttributes {
         this.unreadPMs = info.unreadPMs;
         this.uuid = info.uuid;
 
-        setGroups(info.groupIds);
+        if (savedGroupIds != null && !savedGroupIds.isEmpty()) {
+            setGroups(savedGroupIds);
+        } else {
+            setGroups(info.groupIds);
+        }
+
+        this.socialList = SocialList.get(name);
+        PlayerLookup.register(name);
 
         if(position == null)
             position = new Position(3086, 3495, 0);
@@ -1228,6 +1328,9 @@ public class Player extends PlayerAttributes {
     }
 
     public void finish() {
+        if (socialList != null) {
+            socialList.offline(this);
+        }
         /*
          * Scrolls Timer Saving
          */
@@ -1394,11 +1497,6 @@ public class Player extends PlayerAttributes {
                 return;
         }
         World.players.remove(getIndex());
-        CentralClient.sendLogout(userId);
-        /**
-         * Misc things like SQL updates
-         */
-        XenGroup.update(this);
         Hiscores.save(this);
         Loggers.logPlayer(this);
         Loggers.updateItems(this);
@@ -1413,6 +1511,10 @@ public class Player extends PlayerAttributes {
 
         processHits();
         processEvent();
+
+        if (socialList != null) {
+            socialList.process(this);
+        }
 
         inventory.sendUpdates();
         equipment.sendUpdates();

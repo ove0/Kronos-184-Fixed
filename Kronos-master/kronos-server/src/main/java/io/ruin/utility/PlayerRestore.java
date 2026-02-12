@@ -29,7 +29,7 @@ public class PlayerRestore {
             "slayer", "farming", "runecrafting", "hunter", "construction"
     };
 
-    private static final String IPS_PATH = System.getProperty("user.home") + "/Desktop/Kronos/";
+    private static final String IPS_PATH = System.getProperty("user.home") + "/Desktop/kronos/";
     private static final String CLAIMED_RESTORES = "claimed_restores.txt";
 
     public static void reconstructPlayer(Player player) {
@@ -52,7 +52,7 @@ public class PlayerRestore {
     }
 
     private static boolean reconstructStats(Player player) {
-        if (OfflineMode.enabled)
+        if (World.isDev())
             return false;
         Server.siteDb.execute((connection) -> {
 

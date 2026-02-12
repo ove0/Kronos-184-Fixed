@@ -58,7 +58,6 @@ public class Adam {
     private static void removeIronmanMode(Player player) {
         if(player.getBankPin().requiresVerification(Adam::removeIronmanMode))
             return;
-        GameMode.changeForumsGroup(player, GameMode.STANDARD.groupId);
         Config.IRONMAN_MODE.set(player, 0);
         player.dialogue(new MessageDialogue("You have successfully removed your ironman status."));
     }

@@ -32,6 +32,7 @@ public class IPMute {
     @SneakyThrows
     private static void initialize() throws IOException {
         if (!store.exists()) {
+            store.getParentFile().mkdirs();
             store.createNewFile();
         }
         String token;

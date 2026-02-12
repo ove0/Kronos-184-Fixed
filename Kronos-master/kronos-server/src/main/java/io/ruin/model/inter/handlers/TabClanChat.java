@@ -5,7 +5,8 @@ import io.ruin.model.inter.InterfaceHandler;
 import io.ruin.model.inter.InterfaceType;
 import io.ruin.model.inter.actions.OptionAction;
 import io.ruin.model.inter.actions.SimpleAction;
-import io.ruin.network.central.CentralSender;
+import io.ruin.social.SocialRank;
+import io.ruin.social.clan.ClanChat;
 
 public class TabClanChat {
 
@@ -22,16 +23,30 @@ public class TabClanChat {
                             return;
                         }
                         player.getPacketSender().sendString(Interface.CLAN_CHAT_SETTINGS, 10, name);
-                        CentralSender.sendClanName(player.getUserId(), name);
+                        ClanChat cc = player.getClanChat();
+                        cc.clanName = name;
+                        cc.update(true);
                     });
                     return;
                 }
                 player.getPacketSender().sendString(Interface.CLAN_CHAT_SETTINGS, 10, "Chat disabled");
-                CentralSender.sendClanName(player.getUserId(), "");
+                ClanChat cc = player.getClanChat();
+                cc.clanName = null;
+                cc.disable();
             };
-            h.actions[13] = (OptionAction) (player, option) -> CentralSender.sendClanSetting(player.getUserId(), 0, (option - 2));
-            h.actions[16] = (OptionAction) (player, option) -> CentralSender.sendClanSetting(player.getUserId(), 1, (option - 2));
-            h.actions[19] = (OptionAction) (player, option) -> CentralSender.sendClanSetting(player.getUserId(), 2, (option - 2));
+            h.actions[13] = (OptionAction) (player, option) -> {
+                ClanChat cc = player.getClanChat();
+                cc.enterRank = SocialRank.get(option - 2, null);
+            };
+            h.actions[16] = (OptionAction) (player, option) -> {
+                ClanChat cc = player.getClanChat();
+                cc.talkRank = SocialRank.get(option - 2, null);
+            };
+            h.actions[19] = (OptionAction) (player, option) -> {
+                ClanChat cc = player.getClanChat();
+                cc.kickRank = SocialRank.get(option - 2, SocialRank.CORPORAL);
+                cc.update(true);
+            };
         });
     }
 

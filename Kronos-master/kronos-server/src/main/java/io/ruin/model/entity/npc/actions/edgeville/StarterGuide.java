@@ -24,7 +24,6 @@ import io.ruin.model.inter.utils.Config;
 import io.ruin.model.inter.utils.Option;
 import io.ruin.model.map.Direction;
 import io.ruin.model.stat.StatType;
-import io.ruin.network.central.CentralClient;
 import io.ruin.utility.Broadcast;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +48,7 @@ public class StarterGuide {
 		LoginListener.register(player -> {
             if (player.newPlayer) {
                 XpCounter.select(player, 1);
-                CentralClient.sendClanRequest(player.getUserId(), "Help");
+                player.getClanChat().join(player, "Help");
                 tutorial(player);
             } else {
                 //player.getPacketSender().sendMessage("Latest Update: " + LatestUpdate.LATEST_UPDATE_TITLE + "|" + LatestUpdate.LATEST_UPDATE_URL, "", 14);

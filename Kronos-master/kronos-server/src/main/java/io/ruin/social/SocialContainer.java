@@ -1,4 +1,4 @@
-package io.ruin.central.model.social;
+package io.ruin.social;
 
 import com.google.gson.annotations.Expose;
 
@@ -13,25 +13,25 @@ public class SocialContainer {
         if (this.friends == null) {
             this.friends = new SocialMember[400];
         }
-        if (this.friendsCount >= this.friends.length || this.isFriend(friend.userId)) {
+        if (this.friendsCount >= this.friends.length || this.isFriend(friend.playerName)) {
             return false;
         }
         this.friends[this.friendsCount++] = friend;
         return true;
     }
 
-    public int deleteFriend(String name) {
+    public String deleteFriend(String name) {
         for (int index = 0; index < this.friendsCount; ++index) {
             SocialMember friend = this.friends[index];
-            if (!name.equalsIgnoreCase(friend.name)) continue;
+            if (!name.equalsIgnoreCase(friend.playerName)) continue;
             --this.friendsCount;
             for (int i = index; i < this.friendsCount; ++i) {
                 this.friends[i] = this.friends[i + 1];
             }
             this.friends[this.friendsCount] = null;
-            return friend.userId;
+            return friend.playerName;
         }
-        return -1;
+        return null;
     }
 
     public SocialMember getFriend(String name) {
@@ -39,64 +39,52 @@ public class SocialContainer {
             return null;
         }
         for (SocialMember friend : this.friends) {
-            if (friend == null || !name.equalsIgnoreCase(friend.name)) continue;
+            if (friend == null || !name.equalsIgnoreCase(friend.playerName)) continue;
             return friend;
         }
         return null;
     }
 
-    public SocialMember getFriend(int userId) {
-        if (this.friends == null) {
-            return null;
-        }
-        for (SocialMember friend : this.friends) {
-            if (friend == null || friend.userId != userId) continue;
-            return friend;
-        }
-        return null;
-    }
-
-    public boolean isFriend(int userId) {
-        return this.getFriend(userId) != null;
+    public boolean isFriend(String name) {
+        return this.getFriend(name) != null;
     }
 
     public void addIgnore(SocialMember ignore) {
         if (this.ignores == null) {
             this.ignores = new SocialMember[400];
         }
-        if (this.ignoresCount >= this.ignores.length || this.isIgnored(ignore.userId)) {
+        if (this.ignoresCount >= this.ignores.length || this.isIgnored(ignore.playerName)) {
             return;
         }
         this.ignores[this.ignoresCount++] = ignore;
     }
 
-    public int deleteIgnore(String name) {
+    public String deleteIgnore(String name) {
         for (int index = 0; index < this.ignoresCount; ++index) {
             SocialMember ignore = this.ignores[index];
-            if (!name.equalsIgnoreCase(ignore.name)) continue;
+            if (!name.equalsIgnoreCase(ignore.playerName)) continue;
             --this.ignoresCount;
             for (int i = index; i < this.ignoresCount; ++i) {
                 this.ignores[i] = this.ignores[i + 1];
             }
             this.ignores[this.ignoresCount] = null;
-            return ignore.userId;
+            return ignore.playerName;
         }
-        return -1;
+        return null;
     }
 
-    public SocialMember getIgnore(int userId) {
+    public SocialMember getIgnore(String name) {
         if (this.ignores == null) {
             return null;
         }
         for (SocialMember ignore : this.ignores) {
-            if (ignore == null || ignore.userId != userId) continue;
+            if (ignore == null || !name.equalsIgnoreCase(ignore.playerName)) continue;
             return ignore;
         }
         return null;
     }
 
-    public boolean isIgnored(int userId) {
-        return this.getIgnore(userId) != null;
+    public boolean isIgnored(String name) {
+        return this.getIgnore(name) != null;
     }
 }
-

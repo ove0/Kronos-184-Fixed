@@ -5,15 +5,13 @@ import io.ruin.api.utils.IPAddress;
 import io.ruin.model.World;
 import io.ruin.model.activities.pvp.PVPInstance;
 import io.ruin.model.activities.wilderness.Wilderness;
-import io.ruin.utility.OfflineMode;
-
 import java.io.IOException;
 import java.sql.PreparedStatement;
 
 public class PlayersOnline {
 
     static {
-        if (!OfflineMode.enabled && !World.isDev() && !World.isBeta()) {
+        if (World.isLive()) {
             String[] split = World.address.split(":");
             try {
                 split[0] = IPAddress.get();
@@ -37,7 +35,7 @@ public class PlayersOnline {
             });
         }
 
-        if (!OfflineMode.enabled && !World.isDev()) {
+        if (!World.isDev()) {
             World.startTask(t -> {
                 while (true) {
                     t.sleep(1800000); //30 minutes

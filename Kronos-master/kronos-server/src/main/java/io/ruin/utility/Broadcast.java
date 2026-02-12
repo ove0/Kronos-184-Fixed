@@ -3,13 +3,12 @@ package io.ruin.utility;
 import io.ruin.cache.Icon;
 import io.ruin.model.World;
 import io.ruin.model.entity.player.Player;
-import io.ruin.network.central.CentralClient;
 
 import java.util.function.BiConsumer;
 
 public enum Broadcast {
 
-    FRIENDS(Icon.GREEN_INFO_BADGE, (player, message) -> CentralClient.sendGlobalMessage(player.getUserId(), message)),
+    FRIENDS(Icon.GREEN_INFO_BADGE, (player, message) -> World.players.forEach(p -> p.sendMessage(message))),
     WORLD(Icon.BLUE_INFO_BADGE, (player, message) -> World.players.forEach(p -> {
         //If the player has toggle off announcement broadcasts don't send.
         if (!p.broadcastAnnouncements && (message.contains("Announcements") || message.contains("::Vote for"))) {
@@ -28,7 +27,7 @@ public enum Broadcast {
         p.sendMessage(message);
         p.sendNotification(message);
     })),
-    GLOBAL(Icon.YELLOW_INFO_BADGE, (player, message) -> CentralClient.sendGlobalMessage(-1, message));
+    GLOBAL(Icon.YELLOW_INFO_BADGE, (player, message) -> World.players.forEach(p -> p.sendMessage(message)));
 
     private final Icon newsIcon;
 

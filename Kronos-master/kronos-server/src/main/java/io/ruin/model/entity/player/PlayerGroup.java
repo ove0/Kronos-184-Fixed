@@ -1,12 +1,7 @@
 package io.ruin.model.entity.player;
 
 import io.ruin.api.utils.StringUtils;
-import io.ruin.api.utils.XenPost;
 import lombok.Getter;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Descending order from highest priority group
@@ -64,15 +59,8 @@ public enum PlayerGroup {
     }
 
     public void sync(Player player, String type, Runnable successAction) {
-        CompletableFuture.runAsync(() -> {
-            Map<Object, Object> map = new HashMap<>();
-            map.put("userId", player.getUserId());
-            map.put("type", type);
-            map.put("groupId", id);
-            String result = XenPost.post("add_group", map);
-            if(successAction != null && "1".equals(result))
-                successAction.run();
-        });
+        if (successAction != null)
+            successAction.run();
     }
 
     public void removePKMode(Player player, String type) {
@@ -80,14 +68,8 @@ public enum PlayerGroup {
     }
 
     public void removePKMode(Player player, String type, Runnable successAction) {
-        CompletableFuture.runAsync(() -> {
-            Map<Object, Object> map = new HashMap<>();
-            map.put("userId", player.getUserId());
-            map.put("type", type);
-            String result = XenPost.post("remove_group", map);
-            if(successAction != null && "1".equals(result))
-                successAction.run();
-        });
+        if (successAction != null)
+            successAction.run();
     }
 
     public String tag() {

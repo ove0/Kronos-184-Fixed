@@ -33,7 +33,7 @@ public class PlayerBot {
         int index = World.players.add(bot, 1);
 
         LoginInfo info = new LoginInfo(new EmptyChannel(), "BOT" + index, "password", "", "", null, 0, false, 0, World.id, new int[4]);
-        info.update(-1, info.name, "", ListUtils.toList(PlayerGroup.REGISTERED.id), 0);
+        info.update(info.name, "", ListUtils.toList(PlayerGroup.REGISTERED.id));
 
         bot.setIndex(index);
         bot.init(info);

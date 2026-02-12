@@ -8,7 +8,10 @@ import io.ruin.model.activities.jail.Jail;
 import io.ruin.model.entity.npc.NPC;
 import io.ruin.model.entity.player.Player;
 import io.ruin.model.entity.player.PlayerGroup;
-import io.ruin.network.central.CentralClient;
+import io.ruin.api.utils.IPBans;
+import io.ruin.api.utils.MACBan;
+import io.ruin.api.utils.UUIDBan;
+import io.ruin.model.inter.utils.Config;
 import io.ruin.services.discord.DiscordConnection;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -127,25 +130,23 @@ public class Punishment {
 
     public static void ban(Player p1, Player p2) {
         p1.sendMessage("Attemping to ban " + p2.getName() + "...");
-        PlayerGroup.BANNED.sync(p2, "ban", () -> {
-            Server.worker.execute(() -> {
-                p2.forceLogout();
-                p1.sendMessage("Successfully banned " + p2.getName() + "!");
-
-                logPunishment(p1, p2, -1, "banned");
-            });
+        p2.join(PlayerGroup.BANNED);
+        Server.worker.execute(() -> {
+            p2.forceLogout();
+            p1.sendMessage("Successfully banned " + p2.getName() + "!");
+            logPunishment(p1, p2, -1, "banned");
         });
     }
 
     public static void macBan(Player staffMember, Player punishedUser) {
-        CentralClient.requestMACBan(punishedUser.getUserId(), punishedUser.getUUID());
+        MACBan.requestBan(punishedUser.getName(), punishedUser.getMACAddress());
         ban(staffMember, punishedUser);
         World.getPlayerStream().filter(player -> player.getMACAddress().equalsIgnoreCase(punishedUser.getMACAddress())).forEach(Player::forceLogout);
         logPunishment(staffMember, punishedUser, -1, "MAC banned");
     }
 
     public static void uuidBan(Player staffMember, Player punishedUser) {
-        CentralClient.requestUUIDBan(punishedUser.getUUID());
+        UUIDBan.requestBan(punishedUser.getUUID());
         ban(staffMember, punishedUser);
         World.getPlayerStream().filter(player -> player.getUUID().equalsIgnoreCase(punishedUser.getUUID())).forEach(Player::forceLogout);
         logPunishment(staffMember, punishedUser, -1, "UUID banned");
@@ -158,7 +159,7 @@ public class Punishment {
     }
 
     public static void ipBan(Player staffMember, Player punishedUser) {
-        CentralClient.requestIPBan(punishedUser.getUserId(), punishedUser.getUUID());
+        IPBans.requestBan(punishedUser.getName(), punishedUser.getIp());
         ban(staffMember, punishedUser);
         World.getPlayerStream().filter(player -> player.getIp().equalsIgnoreCase(punishedUser.getIp())).forEach(Player::forceLogout);
         logPunishment(staffMember, punishedUser, -1, "IP banned");

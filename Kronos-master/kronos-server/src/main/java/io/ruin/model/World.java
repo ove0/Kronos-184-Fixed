@@ -58,8 +58,6 @@ public class World extends EventWorker {
 
     public static int port;
 
-    private static String centralAddress;
-
     public static boolean isDev() {
         return stage == WorldStage.DEV;
     }
@@ -431,14 +429,6 @@ public class World extends EventWorker {
         });
     }
 
-    public static String getCentralAddress() {
-        return centralAddress;
-    }
-
-    public static void setCentralAddress(String centralAddress) {
-        World.centralAddress = centralAddress;
-    }
-
     @SneakyThrows
     public static void parse(Properties properties) {
         World.id = Integer.parseInt(properties.getProperty("world_id"));
@@ -469,6 +459,5 @@ public class World extends EventWorker {
             host = IPAddress.get();
         World.address = host + ":" + port;
 
-        World.setCentralAddress(properties.getProperty("central_address"));
     }
 }

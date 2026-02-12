@@ -73,4 +73,10 @@ public class LoginInfo {
         this.unreadPMs = unreadPMs;
     }
 
+    public void update(String name, String saved, List<Integer> groupIds) {
+        this.name = name;
+        this.saved = saved;
+        this.groupIds = groupIds;
+    }
+
 }
