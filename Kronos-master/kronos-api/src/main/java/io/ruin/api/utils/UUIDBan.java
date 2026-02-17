@@ -16,7 +16,7 @@ import java.util.List;
 public class UUIDBan {
 
     private static final List<String> banned_ips = Lists.newArrayList();
-    private static final File store = new File(System.getProperty("user.home") + "/Desktop/kronos/uuid_bans.txt");
+    private static final File store = new File(ServerPaths.getPunishments(), "uuid_bans.txt");
 
     static {
         try {

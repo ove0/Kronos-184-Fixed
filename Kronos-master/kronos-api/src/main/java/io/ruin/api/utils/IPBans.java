@@ -18,7 +18,7 @@ import java.util.Map;
 public class IPBans {
 
     private static final Map<String, String> banned_ips = Maps.newHashMap();
-    private static final File store = new File(System.getProperty("user.home") + "/Desktop/kronos/ip_bans.txt");
+    private static final File store = new File(ServerPaths.getPunishments(), "ip_bans.txt");
 
     static {
         try {

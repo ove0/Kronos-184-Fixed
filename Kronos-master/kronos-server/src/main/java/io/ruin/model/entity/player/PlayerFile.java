@@ -22,7 +22,7 @@ import java.util.concurrent.Executors;
 
 public class PlayerFile {
 
-    private static final File CHARACTERS_FOLDER = new File(System.getProperty("user.home") + "/Desktop/kronos/_saved/characters/");
+    private static final File CHARACTERS_FOLDER = new File(io.ruin.api.utils.ServerPaths.getCharacters());
     private static final ExecutorService SAVE_EXECUTOR = Executors.newSingleThreadExecutor(new ProcessFactory("save-worker", Thread.NORM_PRIORITY - 1));
     private static final Gson GSON_LOADER = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().registerTypeAdapter(Room.class, new JsonDeserializer<Room>() {
 

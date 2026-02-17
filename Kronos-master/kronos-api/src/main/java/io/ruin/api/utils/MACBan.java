@@ -16,7 +16,7 @@ import java.util.Map;
 public class MACBan {
 
     private static final Map<String, String> banned_macs = Maps.newHashMap();
-    private static final File store = new File(System.getProperty("user.home") + "/Desktop/kronos/mac_bans.txt");
+    private static final File store = new File(ServerPaths.getPunishments(), "mac_bans.txt");
 
     static {
         try {

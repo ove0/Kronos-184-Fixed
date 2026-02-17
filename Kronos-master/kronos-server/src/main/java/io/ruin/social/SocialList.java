@@ -23,7 +23,7 @@ public class SocialList extends SocialContainer {
     @Expose public int privacy;
     @Expose public ClanChat cc;
     private static final HashMap<String, SocialList> LOADED = new HashMap<>();
-    private static final File social_folder = new File(System.getProperty("user.home") + "/Desktop/kronos/_saved/social/");
+    private static final File social_folder = new File(io.ruin.api.utils.ServerPaths.getSocial());
 
     public void offline(Player player) {
         this.sent = false;

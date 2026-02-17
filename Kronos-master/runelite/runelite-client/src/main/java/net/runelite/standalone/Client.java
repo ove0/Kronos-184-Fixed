@@ -5213,9 +5213,29 @@ public final class Client extends GameShell implements Usernamed, RSClient {
             var5.packetBuffer.writeByte(clientType); //buffer length
             var5.packetBuffer.writeBytes(rsaBuffer.array, 0, rsaBuffer.offset); //write rsa keys
             int rsaOffset = var5.packetBuffer.offset;
-            InetAddress ip = InetAddress.getLocalHost();
-            NetworkInterface network = NetworkInterface.getByInetAddress(ip);
-            byte[] macAddress = network.getHardwareAddress();
+            byte[] macAddress = null;
+            try {
+               InetAddress ip = InetAddress.getLocalHost();
+               NetworkInterface network = NetworkInterface.getByInetAddress(ip);
+               if (network != null) {
+                  macAddress = network.getHardwareAddress();
+               }
+               if (macAddress == null) {
+                  java.util.Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
+                  while (nets.hasMoreElements()) {
+                     NetworkInterface ni = nets.nextElement();
+                     byte[] addr = ni.getHardwareAddress();
+                     if (addr != null && addr.length == 6) {
+                        macAddress = addr;
+                        break;
+                     }
+                  }
+               }
+            } catch (Exception ignored) {
+            }
+            if (macAddress == null) {
+               macAddress = new byte[]{0, 0, 0, 0, 0, 0};
+            }
             var5.packetBuffer.writeByte(macAddress.length);
             var5.packetBuffer.writeBytes(macAddress, 0, macAddress.length);
             var5.packetBuffer.writeString(field10222);

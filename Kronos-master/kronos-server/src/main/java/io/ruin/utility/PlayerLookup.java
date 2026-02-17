@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 
 public class PlayerLookup {
 
-    private static final File CHARACTERS_FOLDER = new File(System.getProperty("user.home") + "/Desktop/kronos/_saved/characters/");
+    private static final File CHARACTERS_FOLDER = new File(io.ruin.api.utils.ServerPaths.getCharacters());
 
     public static class PlayerLookupEntry {
         public String playerName;
