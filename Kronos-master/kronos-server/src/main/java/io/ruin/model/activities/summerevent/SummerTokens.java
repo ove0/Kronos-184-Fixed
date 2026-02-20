@@ -23,6 +23,12 @@ public class SummerTokens {
                     tokens = 2;
                 }
             }
+
+            if (0 == tokens) {
+
+                return;
+            }
+
             new GroundItem(SummerShrine.TOKENS, tokens).owner(player).position(dropLocation).spawn();
         }
     }
